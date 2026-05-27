@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Race to Robot — NXP Edge AI 應用工作坊</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+TC:wght@300;400;500;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --black:#080808;
+  --white:#f0ede6;
+  --orange:#ff7a00;
+  --lime:#a8e000;
+  --cyan:#00c8f0;
+  --border:rgba(255,255,255,0.08);
+  --mono:'DM Mono',monospace;
+  --display:'Bebas Neue',sans-serif;
+  --body:'Noto Sans TC',sans-serif;
+  --pad:3.5rem;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--body);background:var(--black);color:var(--white);line-height:1.6;overflow-x:hidden}
+
+/* ── HERO ── */
+.hero{min-height:100vh;display:grid;grid-template-rows:auto 1fr auto;position:relative;overflow:hidden}
+.ray-bg{
+  position:absolute;inset:0;z-index:0;
+  background:conic-gradient(from 205deg at 105% 98%,
+    #ff7a00 0deg,#ff9500 15deg,transparent 15deg,transparent 30deg,
+    #a8e000 30deg,#c8f000 44deg,transparent 44deg,transparent 56deg,
+    #00c8f0 56deg,#00e8ff 78deg,transparent 78deg,transparent 90deg,
+    #ff7a00 90deg,#ffaa00 102deg,transparent 102deg,transparent 116deg,
+    #00c8f0 116deg,#00d8ff 130deg,transparent 130deg);
+  opacity:0.26;
+}
+.ray-bg::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 65% 85% at 108% 102%,transparent 25%,var(--black) 72%)}
+
+/* NAV */
+.hero-nav{position:sticky;top:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:2rem var(--pad);border-bottom:1px solid var(--border);background:rgba(8,8,8,0.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.nav-brand{font-family:var(--mono);font-size:12px;letter-spacing:0.15em;color:rgba(240,237,230,0.4);text-transform:uppercase}
+.nav-right{display:flex;align-items:center;gap:1.5rem}
+.nav-tags{display:flex;gap:1rem}
+.nav-tag{font-family:var(--mono);font-size:11px;letter-spacing:0.1em;color:rgba(240,237,230,0.28);text-transform:uppercase}
+.nav-tag.hi{color:var(--orange)}
+.btn-nav{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--cyan);color:#080808;
+  font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:0.1em;
+  padding:9px 20px;text-decoration:none;text-transform:uppercase;border:none;cursor:pointer;
+  clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,0 100%);
+  transition:background 0.2s;
+}
+.btn-nav:hover{background:#00a8cc}
+.btn-nav::after{content:'→';margin-left:2px}
+
+/* HERO BODY */
+.hero-body{position:relative;z-index:2;display:grid;grid-template-columns:1fr 420px;gap:0;padding:0 var(--pad);align-items:center}
+.hero-left{padding:4rem 3rem 4rem 0;}
+.hero-right{padding:4rem 0 4rem 3rem;display:flex;flex-direction:column;gap:2rem}
+
+.event-kicker{font-family:var(--mono);font-size:13px;letter-spacing:0.2em;color:var(--orange);text-transform:uppercase;margin-bottom:1.5rem;display:flex;align-items:center;gap:12px}
+.event-kicker::before{content:'';width:20px;height:1px;background:var(--orange)}
+
+h1{font-family:var(--display);font-size:clamp(5rem,11vw,10rem);line-height:0.88;letter-spacing:0.02em;margin-bottom:2.5rem}
+h1 .sub{font-family:var(--display);font-size:0.44em;color:var(--lime);display:block;letter-spacing:0.07em;margin-bottom:0.1em}
+h1 .acc{color:var(--orange)}
+
+.hero-desc{max-width:480px;font-size:16px;color:rgba(240,237,230,0.5);line-height:1.9;margin-bottom:2.5rem;font-weight:300}
+.hero-cta{display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap}
+.btn-reg{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--cyan);color:#080808;
+  font-family:var(--mono);font-size:13px;font-weight:500;letter-spacing:0.1em;
+  padding:15px 30px;text-decoration:none;text-transform:uppercase;border:none;cursor:pointer;
+  clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,0 100%);transition:background 0.2s;
+}
+.btn-reg:hover{background:#00a8cc}
+.cta-note{font-family:var(--mono);font-size:12px;color:rgba(240,237,230,0.22);letter-spacing:0.07em}
+
+/* META CARDS — no borders on grid items */
+.meta-card{padding:1.5rem;display:flex;flex-direction:column;gap:6px}
+.mc-label{font-family:var(--mono);font-size:11px;letter-spacing:0.12em;color:rgba(240,237,230,0.28);text-transform:uppercase}
+.mc-val{font-size:16px;font-weight:400}
+.hi-o{color:var(--orange)}.hi-l{color:var(--lime)}.hi-c{color:var(--cyan)}
+.meta-cards-grid{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.meta-cards-grid .meta-card{background:transparent;border:none}
+
+/* STAT BAR */
+.hero-footer{position:relative;z-index:2;display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--border)}
+.h-stat{padding:1.5rem var(--pad);border-right:1px solid var(--border)}
+.h-stat:last-child{border-right:none}
+.sv{font-family:var(--display);font-size:2.2rem;line-height:1;margin-bottom:4px}
+.sv.o{color:var(--orange)}.sv.l{color:var(--lime)}.sv.c{color:var(--cyan)}
+.sl{font-family:var(--mono);font-size:11px;letter-spacing:0.1em;color:rgba(240,237,230,0.3);text-transform:uppercase}
+
+/* ── SECTIONS ── */
+.section{padding:5rem var(--pad);border-top:1px solid var(--border);position:relative;z-index:1}
+.sec-hd{display:flex;align-items:baseline;gap:1rem;margin-bottom:3rem}
+.sec-num{font-family:var(--mono);font-size:11px;color:var(--orange);letter-spacing:0.15em}
+.sec-ttl{font-family:var(--display);font-size:clamp(2rem,4vw,3rem);letter-spacing:0.05em}
+
+/* ── WHY NOW — context band ── */
+.context-band{
+  padding:4rem var(--pad);
+  border-top:1px solid var(--border);
+  background:linear-gradient(135deg,rgba(255,122,0,0.04) 0%,transparent 50%,rgba(0,200,240,0.04) 100%);
+  position:relative;z-index:1;
+}
+.context-inner{display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:start}
+.context-lead{font-family:var(--display);font-size:clamp(2rem,3.5vw,2.8rem);letter-spacing:0.04em;line-height:1.05;color:var(--white)}
+.context-lead .hl-o{color:var(--orange)}
+.context-lead .hl-l{color:var(--lime)}
+.context-right{display:flex;flex-direction:column;gap:1.5rem}
+.ctx-point{display:flex;gap:1rem;align-items:flex-start;padding-bottom:1.5rem;border-bottom:1px solid var(--border)}
+.ctx-point:last-child{border-bottom:none;padding-bottom:0}
+.ctx-dot{width:6px;height:6px;border-radius:50%;background:var(--orange);flex-shrink:0;margin-top:8px}
+.ctx-dot.l{background:var(--lime)}.ctx-dot.c{background:var(--cyan)}
+.ctx-body{}
+.ctx-title{font-size:15px;font-weight:500;margin-bottom:4px}
+.ctx-desc{font-size:14px;color:rgba(240,237,230,0.42);line-height:1.75}
+
+/* ── HIGHLIGHTS ── */
+.hl-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--border)}
+.hl{background:var(--black);padding:2.5rem;position:relative;overflow:hidden;transition:background 0.2s}
+.hl:hover{background:#111}
+.hl::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.hl:nth-child(1)::before{background:var(--orange)}
+.hl:nth-child(2)::before{background:var(--lime)}
+.hl:nth-child(3)::before{background:var(--cyan)}
+.hl:nth-child(4)::before{background:var(--orange)}
+.hl-num{font-family:var(--display);font-size:3rem;opacity:0.1;line-height:1;margin-bottom:1rem}
+.hl-ttl{font-size:17px;font-weight:500;margin-bottom:0.6rem}
+.hl-desc{font-size:14px;color:rgba(240,237,230,0.42);line-height:1.8}
+.hl-tag{display:inline-block;margin-top:1rem;font-family:var(--mono);font-size:11px;letter-spacing:0.08em;padding:3px 10px;text-transform:uppercase}
+.to{background:rgba(255,122,0,0.12);color:var(--orange)}
+.tl{background:rgba(168,224,0,0.12);color:var(--lime)}
+.tc{background:rgba(0,200,240,0.12);color:var(--cyan)}
+
+/* ── SCHEDULE ── */
+.sched{display:flex;flex-direction:column}
+.si{display:grid;grid-template-columns:150px 1fr;gap:2rem;padding:1.4rem 0;border-bottom:1px solid var(--border);align-items:start}
+.st{font-family:var(--mono);font-size:12px;color:rgba(240,237,230,0.28);letter-spacing:0.05em;padding-top:3px}
+.sn{font-size:15px;font-weight:500}
+.dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:9px;vertical-align:middle}
+.do{background:var(--orange)}.dl{background:var(--lime)}.dc{background:var(--cyan)}.dg{background:rgba(240,237,230,0.14)}
+
+/* ── PARTNERS ── */
+.partners-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border)}
+.partner{background:var(--black);padding:3rem 2.5rem;position:relative;overflow:hidden}
+.partner::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.partner:nth-child(1)::before{background:var(--orange)}
+.partner:nth-child(2)::before{background:var(--lime)}
+.partner:nth-child(3)::before{background:var(--cyan)}
+.p-role{font-family:var(--mono);font-size:11px;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.5rem;color:rgba(240,237,230,0.3)}
+.p-name{font-family:var(--display);font-size:2.5rem;letter-spacing:0.05em;line-height:1;margin-bottom:1.5rem}
+.p-name.o{color:var(--orange)}.p-name.l{color:var(--lime)}.p-name.c{color:var(--cyan)}
+.p-desc{font-size:14px;color:rgba(240,237,230,0.45);line-height:1.85}
+.p-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:1.5rem}
+.chip{font-family:var(--mono);font-size:11px;letter-spacing:0.06em;border:1px solid var(--border);padding:4px 10px;color:rgba(240,237,230,0.35)}
+
+/* ── REGISTER ── */
+.reg-wrap{background:#0d0d0d;display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--border)}
+.reg-l{padding:5rem var(--pad);border-right:1px solid var(--border);display:flex;flex-direction:column;justify-content:center}
+.reg-r{padding:5rem var(--pad);display:flex;flex-direction:column;justify-content:center}
+.reg-big{font-family:var(--display);font-size:clamp(3rem,6vw,5rem);line-height:0.92;margin-bottom:2rem}
+.reg-big .g{color:var(--lime)}
+.reg-desc{font-size:14px;color:rgba(240,237,230,0.38);line-height:1.9;margin-bottom:2.5rem}
+.info-list{display:flex;flex-direction:column}
+.info-row{display:flex;gap:1.5rem;align-items:baseline;padding:1.1rem 0;border-bottom:1px solid var(--border)}
+.ik{font-family:var(--mono);font-size:11px;letter-spacing:0.1em;color:rgba(240,237,230,0.22);text-transform:uppercase;min-width:58px}
+.iv{font-size:14px}
+.org-row{display:flex;gap:10px;margin-top:2rem}
+.org-tag{font-family:var(--mono);font-size:11px;letter-spacing:0.1em;border:1px solid var(--border);padding:5px 14px;color:rgba(240,237,230,0.35)}
+.reg-box{border:1px solid var(--border);padding:3rem;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:340px;text-align:center;gap:1.5rem}
+.rb-label{font-family:var(--mono);font-size:11px;letter-spacing:0.15em;color:rgba(240,237,230,0.22);text-transform:uppercase}
+.rb-ttl{font-family:var(--display);font-size:2.8rem;letter-spacing:0.04em;line-height:1.1}
+.rb-ttl span{color:var(--orange)}
+.rb-note{font-size:14px;color:rgba(240,237,230,0.3);line-height:1.8}
+.rb-sub{font-family:var(--mono);font-size:11px;letter-spacing:0.07em;color:rgba(240,237,230,0.18);margin-top:1rem;text-align:center}
+
+/* ── FOOTER ── */
+footer{padding:2rem var(--pad);border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:11px;letter-spacing:0.07em;color:rgba(240,237,230,0.18)}
+
+/* ── ANIM ── */
+@keyframes fu{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.hero-left>*{animation:fu 0.7s ease both}
+.hero-left>*:nth-child(1){animation-delay:.05s}
+.hero-left>*:nth-child(2){animation-delay:.15s}
+.hero-left>*:nth-child(3){animation-delay:.25s}
+.hero-left>*:nth-child(4){animation-delay:.35s}
+.hero-right{animation:fu 0.7s ease both;animation-delay:.2s}
+
+/* ── RWD ── */
+@media(max-width:900px){
+  :root{--pad:2rem}
+  .hero-body{grid-template-columns:1fr}
+  .hero-left{padding:3rem 0;border-right:none;border-bottom:1px solid var(--border)}
+  .hero-right{padding:2.5rem 0}
+  h1{font-size:clamp(4rem,16vw,7rem)}
+  .hero-footer{grid-template-columns:repeat(2,1fr)}
+  .h-stat:nth-child(2){border-right:none}
+  .h-stat:nth-child(3){border-top:1px solid var(--border)}
+  .context-inner{grid-template-columns:1fr}
+  .hl-grid{grid-template-columns:1fr}
+  .partners-grid{grid-template-columns:1fr}
+  .si{grid-template-columns:100px 1fr;gap:1rem}
+  .reg-wrap{grid-template-columns:1fr}
+  .reg-l{border-right:none;border-bottom:1px solid var(--border)}
+  footer{flex-direction:column;gap:8px;text-align:center}
+}
+</style>
+</head>
+<body>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="ray-bg"></div>
+
+  <nav class="hero-nav">
+    <span class="nav-brand">IET × NXP × WPI</span>
+    <div class="nav-right">
+      <div class="nav-tags">
+        <span class="nav-tag hi">Edge AI Workshop</span>
+        <span class="nav-tag">2025.07.24</span>
+        <span class="nav-tag">NCKU · Free</span>
+      </div>
+      <a href="#register" class="btn-nav">立即報名 →</a>
+    </div>
+  </nav>
+
+  <div class="hero-body">
+    <div class="hero-left">
+      <div class="event-kicker">NXP Edge AI 應用工作坊</div>
+      <h1>
+        <span class="sub">Race to</span>
+        <span class="acc">Robot</span>
+      </h1>
+      <p class="hero-desc">
+        機器人不只是硬體組裝——它是電源管理、通訊協定、感測整合、即時運算的系統工程。
+        這場工作坊，帶你從實際開發案例出發，和具備嵌入式系統經驗的學長姐與業界導師，一起思考 NXP Edge AI 技術如何應用在下一個開發項目。
+      </p>
+      <div class="hero-cta">
+        <a href="#register" class="btn-reg">立即報名 →</a>
+        <span class="cta-note">// 免費入場 · 建議 2–3 人組隊 · IET 完課認證</span>
+      </div>
+    </div>
+
+    <div class="hero-right">
+      <div class="meta-cards-grid">
+        <div class="meta-card">
+          <span class="mc-label">日期</span>
+          <span class="mc-val">2025.07.24 Thu</span>
+          <span class="mc-val" style="font-size:14px;color:rgba(240,237,230,0.35)">13:00 – 17:00</span>
+        </div>
+        <div class="meta-card">
+          <span class="mc-label">地點</span>
+          <span class="mc-val">成功大學</span>
+          <span class="mc-val" style="font-size:14px;color:rgba(240,237,230,0.35)">旺宏館 202</span>
+        </div>
+        <div class="meta-card">
+          <span class="mc-label">費用</span>
+          <span class="mc-val hi-l" style="font-size:20px">免費</span>
+        </div>
+        <div class="meta-card">
+          <span class="mc-label">名額</span>
+          <span class="mc-val hi-o" style="font-size:20px">45 席</span>
+          <span class="mc-val" style="font-size:13px;color:rgba(240,237,230,0.3)">額滿為止</span>
+        </div>
+      </div>
+      <div class="meta-card" style="background:rgba(255,122,0,0.06);border-color:rgba(255,122,0,0.2)">
+        <span class="mc-label">獎學金競賽</span>
+        <span class="mc-val hi-o" style="font-size:20px">NT$ 2,500 <span style="font-size:14px;font-weight:300;color:rgba(240,237,230,0.4)">× 5 組</span></span>
+        <span class="mc-val" style="font-size:13px;color:rgba(240,237,230,0.3);margin-top:2px">小組討論成果評選 · IET 完課認證</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-footer">
+    <div class="h-stat"><div class="sv o">FREE</div><div class="sl">免費參加</div></div>
+    <div class="h-stat"><div class="sv l">45</div><div class="sl">參與名額</div></div>
+    <div class="h-stat"><div class="sv c">5</div><div class="sl">獎學金組數</div></div>
+    <div class="h-stat"><div class="sv" style="font-size:1.5rem;padding-top:6px">IET</div><div class="sl">完課認證</div></div>
+  </div>
+</section>
+
+<!-- ── WHY NOW ── -->
+<div class="context-band">
+  <div class="context-inner">
+    <div>
+      <div style="font-family:var(--mono);font-size:11px;letter-spacing:0.15em;color:var(--orange);text-transform:uppercase;margin-bottom:1.5rem">// 為什麼是現在</div>
+      <div class="context-lead">
+        機器人時代<br>
+        正在<span class="hl-o">加速到來</span>，<br>
+        你的技術<br>
+        準備好了嗎？<br>
+      </div>
+      <p style="margin-top:2rem;font-size:15px;color:rgba(240,237,230,0.45);line-height:1.85;max-width:400px">
+        從工廠自動化、醫療輔助機器人到 AI 無人機，嵌入式系統正成為下一波科技浪潮的底層基礎。掌握 Edge AI 晶片與系統架構的學生，將在研究與職涯上取得決定性的起跑優勢。
+      </p>
+    </div>
+    <div class="context-right">
+      <div class="ctx-point">
+        <div class="ctx-dot"></div>
+        <div class="ctx-body">
+          <div class="ctx-title">電源管理是機器人的命脈</div>
+          <div class="ctx-desc">無論是移動機器人的鋰電池組，或是外骨骼的高功率驅動，BMS 與電芯監控技術決定了系統的安全邊界與續航能力——這是多數機器人課程沒有深入的一塊。</div>
+        </div>
+      </div>
+      <div class="ctx-point">
+        <div class="ctx-dot l"></div>
+        <div class="ctx-body">
+          <div class="ctx-title">通訊協定決定系統的上限</div>
+          <div class="ctx-desc">CAN Bus 是工業機器人、自駕車與機電整合系統的骨幹通訊協定。從節點設計到訊號可靠性，這些知識橫跨控制器、感測器與致動器的整合，在學術與產業均是核心能力。</div>
+        </div>
+      </div>
+      <div class="ctx-point">
+        <div class="ctx-dot c"></div>
+        <div class="ctx-body">
+          <div class="ctx-title">Edge AI 把運算帶到機器身上</div>
+          <div class="ctx-desc">不依賴雲端、即時推論、低延遲反應——Edge AI 讓機器人在真實環境中自主判斷。NXP 的 MCU 平台正是這個技術生態的核心之一，了解它意味著你能參與設計最前沿的智慧系統。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 01 活動亮點 ── -->
+<section class="section">
+  <div class="sec-hd">
+    <span class="sec-num">01 —</span>
+    <span class="sec-ttl">活動亮點</span>
+  </div>
+  <div class="hl-grid">
+    <div class="hl">
+      <div class="hl-num">01</div>
+      <div class="hl-ttl">學生實戰開發經驗分享</div>
+      <p class="hl-desc">聽同儕如何在真實專題中面對 BMS 電源設計與 CAN Bus 通訊整合的挑戰——不是教科書，而是從零到系統的第一手開發歷程，與機器人控制技術直接相關。</p>
+      <span class="hl-tag to">Peer Tech Talk × 2</span>
+    </div>
+    <div class="hl">
+      <div class="hl-num">02</div>
+      <div class="hl-ttl">NXP Edge AI 企業方案</div>
+      <p class="hl-desc">業師親臨現場分享產業經驗。從晶片選型的思路到系統整合的實務眉角，分享第一線的實務思路。是課堂與實驗室之外難得一見的交流場合。</p>
+      <span class="hl-tag tl">Industry Session</span>
+    </div>
+    <div class="hl">
+      <div class="hl-num">03</div>
+      <div class="hl-ttl">跨校交流 × 構想競賽</div>
+      <p class="hl-desc">以小組為單位構思 NXP 技術的應用方向，在與不同學校同儕交流的過程中拓展視野、碰撞想法。優秀 5 組各獲頒 NT$2,500 獎學金，鼓勵實作研究延伸。</p>
+      <span class="hl-tag tc">NT$ 2,500 × 5 組</span>
+    </div>
+    <div class="hl">
+      <div class="hl-num">04</div>
+      <div class="hl-ttl">IET 國際完課認證</div>
+      <p class="hl-desc">活動結束後核發 IET 國際工程師學會完課證書。IET 是全球工程技術最具公信力的專業學會之一，這份認證可直接納入學習歷程、研究所申請或求職履歷。</p>
+      <span class="hl-tag to">Official Certificate</span>
+    </div>
+  </div>
+</section>
+
+<!-- ── 02 議程 ── -->
+<section class="section">
+  <div class="sec-hd">
+    <span class="sec-num">02 —</span>
+    <span class="sec-ttl">議程</span>
+  </div>
+  <div class="sched">
+    <div class="si">
+      <span class="st">13:00 – 13:30</span>
+      <div><div class="sn"><span class="dot dg"></span>報到入場</div></div>
+    </div>
+    <div class="si">
+      <span class="st">13:30 – 13:45</span>
+      <div><div class="sn"><span class="dot dg"></span>開場致詞</div></div>
+    </div>
+    <div class="si">
+      <span class="st">13:45 – 14:10</span>
+      <div><div class="sn"><span class="dot do"></span>BMS 架構設計與電芯監控系統開發分享</div></div>
+    </div>
+    <div class="si">
+      <span class="st">14:10 – 14:35</span>
+      <div><div class="sn"><span class="dot do"></span>CAN Bus 通訊架構設計與導入經驗分享</div></div>
+    </div>
+    <div class="si">
+      <span class="st">14:35 – 15:15</span>
+      <div><div class="sn"><span class="dot dl"></span>NXP 企業方案分享</div></div>
+    </div>
+    <div class="si">
+      <span class="st">15:15 – 16:30</span>
+      <div><div class="sn"><span class="dot dc"></span>應用構想分組討論 + 小組發表 &amp; 業師回饋</div></div>
+    </div>
+    <div class="si">
+      <span class="st">16:30 – 17:00</span>
+      <div><div class="sn"><span class="dot dl"></span>獎學金頒發 &amp; 閉幕</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 03 主辦夥伴 ── -->
+<section class="section">
+  <div class="sec-hd">
+    <span class="sec-num">03 —</span>
+    <span class="sec-ttl">主辦夥伴</span>
+  </div>
+  <div class="partners-grid">
+    <div class="partner">
+      <div class="p-role">Co-organizer · Semiconductor</div>
+      <div class="p-name o">NXP</div>
+      <p class="p-desc">恩智浦半導體（NXP Semiconductors）是全球前五大半導體廠商，深耕汽車電子、工業控制、IoT 與機器人應用。NXP 的 Edge AI 產品線涵蓋 MCU 平台、電池管理 IC、CAN 收發器與系統基礎晶片，為智慧機器人的硬體底層提供完整解決方案。</p>
+      <div class="p-chips">
+        <span class="chip">Edge AI MCU</span>
+        <span class="chip">Battery Management</span>
+        <span class="chip">CAN Transceiver</span>
+        <span class="chip">Motor Control</span>
+        <span class="chip">Industrial IoT</span>
+      </div>
+    </div>
+    <div class="partner">
+      <div class="p-role">Co-organizer · Education Tech</div>
+      <div class="p-name l">WPI</div>
+      <p class="p-desc">WPI Group 致力於推動工程技術人才培育，深耕嵌入式系統、機器人控制與電力電子的教育訓練生態。透過與 NXP 等國際半導體品牌的合作，將前沿技術帶入台灣高校的工程教育，協助學生銜接學術研究與產業實務。</p>
+      <div class="p-chips">
+        <span class="chip">Engineering Education</span>
+        <span class="chip">Embedded System</span>
+        <span class="chip">Robotics Training</span>
+      </div>
+    </div>
+    <div class="partner">
+      <div class="p-role">Co-organizer · Professional Body</div>
+      <div class="p-name c">IET</div>
+      <p class="p-desc">IET（The Institution of Engineering and Technology）是全球最具規模的工程技術專業學會之一，擁有 168 個國家逾 16 萬名會員。IET 提供工程師認證、國際學術資源與職涯發展支援，本次活動完課後將核發 IET 官方認證證書。</p>
+      <div class="p-chips">
+        <span class="chip">Professional Certification</span>
+        <span class="chip">Global Network</span>
+        <span class="chip">168 Countries</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 04 報名 ── -->
+<div class="reg-wrap" id="register">
+  <div class="reg-l">
+    <div class="reg-big">JOIN<br>THE<br><span class="g">BUILD</span></div>
+    <p class="reg-desc">
+      名額 45 位，額滿為止。建議 2–3 位同學一起報名，以利小組討論協作。<br>
+      歡迎機器人、自動控制、電機電子相關科系的大學生與研究生。
+    </p>
+    <div class="info-list">
+      <div class="info-row"><span class="ik">Date</span><span class="iv">2025 年 7 月 24 日（四）13:00–17:00</span></div>
+      <div class="info-row"><span class="ik">Venue</span><span class="iv">國立成功大學 旺宏館 202 教室</span></div>
+      <div class="info-row"><span class="ik">Fee</span><span class="iv hi-l">免費</span></div>
+      <div class="info-row"><span class="ik">Group</span><span class="iv">建議 2–3 人組隊，獲獎評選以組為單位</span></div>
+    </div>
+    <div class="org-row">
+      <span class="org-tag">IET</span>
+      <span class="org-tag">NXP</span>
+      <span class="org-tag">WPI</span>
+    </div>
+  </div>
+
+  <div class="reg-r">
+    <div class="reg-box">
+      <span class="rb-label">// Registration Open</span>
+      <div class="rb-ttl">加入這場<br><span>技術對話</span></div>
+      <p class="rb-note">
+        免費參加 · 名額 45 席 · 額滿為止<br>
+        建議 2–3 人組隊，以組為單位參與討論與評選
+      </p>
+      <a href="#" class="btn-reg" style="font-size:15px;padding:18px 40px">立即報名 →</a>
+    </div>
+    <p class="rb-sub">// 報名完成後將收到確認信 · 完課後核發 IET 電子證書</p>
+  </div>
+</div>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <span>Race to Robot — NXP Edge AI 應用工作坊 · NCKU 旺宏館 · 2025.07.24</span>
+  <span>IET × NXP × WPI</span>
+</footer>
+
+</body>
+</html>
